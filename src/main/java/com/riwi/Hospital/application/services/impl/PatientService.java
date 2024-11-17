@@ -12,6 +12,7 @@ import com.riwi.Hospital.infrastructure.persistence.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +27,9 @@ public class PatientService implements IPatientService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
     @Override
     public Patient create(PatientWithoutId patientDTO) {
         if (!isAdmin()) {
@@ -36,7 +40,7 @@ public class PatientService implements IPatientService {
         User user = new User();
         user.setDocument(patientDTO.getUser().getDocument());
         user.setName(patientDTO.getUser().getName());
-        user.setPassword(patientDTO.getUser().getPassword());
+        user.setPassword(passwordEncoder.encode(patientDTO.getUser().getPassword()));
         user.setRole(Role.PATIENT);
 
         user = userRepository.save(user);

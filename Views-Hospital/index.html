@@ -11,13 +11,44 @@
     <div class="container">
         <h1 class="mt-5">Solicitar Cita</h1>
 
-        <!-- Lista de Doctores -->
-        <h2 class="mt-4">Doctores Disponibles</h2>
-        <ul id="doctorList" class="list-group">
-            <!-- Los doctores se agregarán aquí desde JavaScript -->
-        </ul>
+        <!-- Tabla de Doctores -->
+        <h2 class="mt-4">Doctores</h2>
+        <table id="doctorTable" class="table table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Documento</th>
+                    <th>Estado</th>
+                    <th>Numero de teléfono</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Los doctores se agregarán aquí desde JavaScript -->
+            </tbody>
+        </table>
 
-        <!-- Formulario de cita -->
+        <!-- Tabla de Pacientes -->
+        <h2 class="mt-4">Pacientes</h2>
+        <table id="patientTable" class="table table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Documento</th>
+                    <th>Dirección</th>
+                    <th>Numero de teléfono</th>
+                    <th>Fecha de nacimiento</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Los pacientes se agregarán aquí desde JavaScript -->
+            </tbody>
+        </table>
+
+        <!-- Formulario de Cita -->
         <h2 class="mt-4">Crear Cita</h2>
         <form id="appointmentForm">
             <div class="mb-3">
@@ -27,8 +58,10 @@
                 </select>
             </div>
             <div class="mb-3">
-                <label for="patientId" class="form-label">Paciente ID</label>
-                <input type="text" class="form-control" id="patientId" placeholder="Ingresa tu ID de paciente">
+                <label for="patientId" class="form-label">Paciente</label>
+                <select class="form-control" id="patientId">
+                    <!-- Los pacientes se agregarán aquí dinámicamente -->
+                </select>
             </div>
             <div class="mb-3">
                 <label for="appointmentDate" class="form-label">Fecha y Hora</label>

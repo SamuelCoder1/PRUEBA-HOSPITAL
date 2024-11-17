@@ -28,7 +28,7 @@ public class DoctorService implements IDoctorService {
     private UserRepository userRepository;
 
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public Doctor create(DoctorWithoutId doctorDTO) {

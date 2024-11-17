@@ -13,12 +13,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
 @RequestMapping("/appointments")
-@CrossOrigin("*")
+@CrossOrigin("http://127.0.0.1:5500")
 public class AppointmentController {
 
     @Autowired
@@ -117,5 +118,19 @@ public class AppointmentController {
     @SecurityRequirement(name = "bearerAuth")
     public List<Appointment> getAppointmentsByPatient(@PathVariable Long id) {
         return appointmentService.getAppointmentsByPatient(id);
+    }
+
+    @Operation(summary = "Get available time slots for a doctor")
+    @GetMapping("/available-slots/{id}")
+    @SecurityRequirement(name = "bearerAuth")
+    public List<String> getAvailableTimeSlots(
+            @Parameter(description = "Doctor ID") @PathVariable Long id,
+            @Parameter(description = "Date in yyyy-MM-dd format") @RequestParam String date) {
+
+        // Convertir el String 'date' a LocalDate
+        LocalDate localDate = LocalDate.parse(date);
+
+        // Llamar al servicio para obtener los horarios disponibles
+        return appointmentService.getAvailableTimeSlots(id, localDate);
     }
 }

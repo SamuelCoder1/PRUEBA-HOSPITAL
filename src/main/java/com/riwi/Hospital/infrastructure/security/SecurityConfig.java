@@ -71,7 +71,8 @@ public class SecurityConfig {
             "/appointments/readAppointmentsByDoctor/**",
             "/appointments/getAppointmentsByPatient/**",
             "/medical-history/patient/**",
-            "/medical-history/add"
+            "/medical-history/add",
+            "/appointments/available-slots/**"
     };
 
     // Definición de los endpoints que solo pueden ser accedidos por DOCTOR
@@ -88,13 +89,15 @@ public class SecurityConfig {
             "/appointments/update/status/**",
             "/appointments/readAppointmentsByDoctor/**",
             "/medical-history/patient/**",
-            "/medical-history/add"
+            "/medical-history/add",
+            "/appointments/available-slots/**"
     };
 
     // Definición de los endpoints que solo pueden ser accedidos por PATIENT
     private final String[] PATIENT_ENDPOINTS = {
             "/patients/readByDocument/**",
             "/appointments/getAppointmentsByPatient/**",
+            "/appointments/available-slots/**"
     };
 
     @Bean

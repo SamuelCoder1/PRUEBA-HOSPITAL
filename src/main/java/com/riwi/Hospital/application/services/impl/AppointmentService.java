@@ -18,7 +18,11 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -158,5 +162,51 @@ public class AppointmentService implements IAppointmentService {
 
     public List<Appointment> getAppointmentsByPatient(Long patientId) {
         return appointmentRepository.findByPatientIdAndStatus(patientId, AppointmentStatus.PENDING);
+    }
+
+    public List<String> getAvailableTimeSlots(Long doctorId, LocalDate date) {
+        // Convertir LocalDate a LocalDateTime para el inicio y fin del día
+        LocalDateTime startOfDay = date.atStartOfDay();  // Obtiene 00:00 horas de ese día
+        LocalDateTime endOfDay = date.atTime(18, 0);   // Fin del día a las 06:00 PM (18:00)
+
+        // Obtener todas las citas existentes para ese doctor entre el rango de fecha
+        List<Appointment> existingAppointments = appointmentRepository.findByDoctorIdAndAppointmentDateBetween(
+                doctorId, startOfDay, endOfDay);
+
+        // Lista de todos los intervalos de 30 minutos entre el inicio y fin del día
+        List<String> allSlots = generateAllSlots(startOfDay, endOfDay);
+
+        // Lista que almacenará los horarios disponibles
+        List<String> availableSlots = new ArrayList<>(allSlots);
+
+        // Eliminar de los horarios disponibles los que ya están ocupados por una cita
+        for (Appointment appointment : existingAppointments) {
+            LocalDateTime appointmentTime = appointment.getAppointmentDate();
+            String occupiedSlot = appointmentTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"));
+            availableSlots.remove(occupiedSlot);  // Eliminar slot ocupado
+        }
+
+        return availableSlots;
+    }
+
+    /**
+     * Genera una lista de todos los intervalos de 30 minutos entre el inicio y fin del día.
+     *
+     * @param startOfDay Hora de inicio del día como LocalDateTime.
+     * @param endOfDay Hora de fin del día como LocalDateTime.
+     * @return Lista de todos los intervalos disponibles en formato "HH:mm".
+     */
+    private List<String> generateAllSlots(LocalDateTime startOfDay, LocalDateTime endOfDay) {
+        List<String> slots = new ArrayList<>();
+        LocalDateTime currentSlot = startOfDay;
+
+        // Crear intervalos de 30 minutos entre el inicio y fin del día
+        while (currentSlot.isBefore(endOfDay)) {
+            String slot = currentSlot.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"));
+            slots.add(slot);
+            currentSlot = currentSlot.plusMinutes(30);  // Avanzar 30 minutos
+        }
+
+        return slots;
     }
 }
