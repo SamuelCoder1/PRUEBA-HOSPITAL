@@ -21,17 +21,21 @@ public class MedicalHistory {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "appointment_id", referencedColumnName = "id", nullable = false)
-    private Appointment appointment;
-
-    @ManyToOne
+    @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
 
-    @ManyToOne
+    @OneToOne
     private Patient patient;
 
-    private LocalDateTime consultationDate;
+    private LocalDateTime appointmentDate;
+
+    private String doctorName;
+
+    private String doctorPhone;
+
+    private String patientName;
+
     private String diagnosis;
-    private String prescriptions;
-    private String treatment;
+
+    private String appointmentReason;
 }

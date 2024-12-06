@@ -19,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/appointments")
-@CrossOrigin("http://127.0.0.1:5500")
+@CrossOrigin(origins = {"http://127.0.0.1:8000", "http://localhost:8000"})
 public class AppointmentController {
 
     @Autowired

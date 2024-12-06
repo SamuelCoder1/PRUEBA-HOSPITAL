@@ -2,6 +2,7 @@ package com.riwi.Hospital.controllers;
 
 import com.riwi.Hospital.application.dtos.exception.GenericNotFoundExceptions;
 import com.riwi.Hospital.application.dtos.requests.DoctorWithoutId;
+import com.riwi.Hospital.application.services.impl.DoctorService;
 import com.riwi.Hospital.domain.entities.Doctor;
 import com.riwi.Hospital.domain.ports.service.IDoctorService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,11 +20,11 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/doctors")
 @Tag(name = "Doctors", description = "API for managing doctors")
-@CrossOrigin("http://127.0.0.1:5500")
+@CrossOrigin(origins = {"http://127.0.0.1:8000", "http://localhost:8000"})
 public class DoctorController {
 
     @Autowired
-    private IDoctorService doctorService;
+    private DoctorService doctorService;
 
     @Operation(summary = "Create a new doctor", description = "Allows an admin to create a new doctor.")
     @PostMapping("/create")
@@ -76,6 +77,16 @@ public class DoctorController {
         Optional<Doctor> doctor = doctorService.readById(id);
         return doctor.map(ResponseEntity::ok)
                 .orElseThrow(() -> new GenericNotFoundExceptions("Doctor not found with ID: " + id));
+    }
+
+    @Operation(summary = "Get doctors by speciality", description = "Allows an admin to retrieve a list of doctors by their speciality.")
+    @GetMapping("/speciality/{speciality}")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<List<Doctor>> getDoctorsBySpeciality(
+            @Parameter(description = "Speciality of the doctors to retrieve", required = true)
+            @PathVariable String speciality) {
+        List<Doctor> doctors = doctorService.findBySpeciality(speciality);
+        return new ResponseEntity<>(doctors, HttpStatus.OK);
     }
 }
 

@@ -23,6 +23,8 @@ public class Doctor {
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
 
+    private String speciality;
+
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)

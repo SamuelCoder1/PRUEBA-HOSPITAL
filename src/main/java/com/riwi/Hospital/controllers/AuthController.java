@@ -10,12 +10,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin("http://127.0.0.1:5500")
+@CrossOrigin(origins = {"http://127.0.0.1:8000", "http://localhost:8000"})
 public class AuthController {
 
     @Autowired
@@ -36,7 +37,9 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
         String jwtToken = authService.login(loginRequest);
-        return ResponseEntity.ok(jwtToken);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken)
+                .body(jwtToken);
     }
 
     @Operation(summary =  "Register")

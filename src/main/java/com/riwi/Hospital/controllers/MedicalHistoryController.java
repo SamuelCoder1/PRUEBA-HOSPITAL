@@ -15,16 +15,15 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/medical-history")
-@CrossOrigin("http://127.0.0.1:5500")
+@CrossOrigin(origins = {"http://127.0.0.1:8000", "http://localhost:8000"})
 public class MedicalHistoryController {
 
     @Autowired
     private MedicalHistoryService medicalHistoryService;
 
-    // Endpoint para generar historial médico en formato PDF
     @GetMapping("/patient/{id}")
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<?> generateMedicalHistoryPdf(@Parameter(description = "ID of the patient")@PathVariable Long id) {
+    public ResponseEntity<?> generateMedicalHistoryPdf(@Parameter(description = "ID of the patient") @PathVariable Long id) {
         try {
             ByteArrayOutputStream byteArrayOutputStream = medicalHistoryService.generateMedicalHistoryPdf(id);
             byte[] pdfContent = byteArrayOutputStream.toByteArray();
@@ -51,11 +50,10 @@ public class MedicalHistoryController {
             @RequestParam Long patientId,
             @RequestParam Long doctorId,
             @RequestParam String diagnosis,
-            @RequestParam String treatment,
-            @RequestParam String prescriptions) {
+            @RequestParam String reasonDate) {
         try {
-            // Llamar al servicio para agregar el historial médico
-            MedicalHistory medicalHistory = medicalHistoryService.addMedicalHistory(patientId, doctorId, diagnosis, treatment, prescriptions);
+            MedicalHistory medicalHistory = medicalHistoryService.addMedicalHistory(patientId, doctorId, diagnosis, reasonDate);
+
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body("Medical history added successfully.");
         } catch (Exception e) {
@@ -64,4 +62,3 @@ public class MedicalHistoryController {
         }
     }
 }
-

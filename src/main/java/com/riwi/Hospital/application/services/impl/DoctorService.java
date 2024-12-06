@@ -47,6 +47,7 @@ public class DoctorService implements IDoctorService {
         Doctor doctor = Doctor.builder()
                 .user(savedUser)
                 .status(doctorDTO.getStatus())
+                .speciality(doctorDTO.getSpeciality())
                 .phoneNumber(doctorDTO.getPhoneNumber())
                 .build();
 
@@ -71,6 +72,7 @@ public class DoctorService implements IDoctorService {
         userRepository.save(user);
 
         existingDoctor.setStatus(doctorDTO.getStatus());
+        existingDoctor.setSpeciality(doctorDTO.getSpeciality());
         existingDoctor.setPhoneNumber(doctorDTO.getPhoneNumber());
 
         return doctorRepository.save(existingDoctor);
@@ -108,6 +110,19 @@ public class DoctorService implements IDoctorService {
         }
 
         return doctorRepository.findById(id);
+    }
+
+    public List<Doctor> findBySpeciality(String speciality) {
+        if (!isAdmin()) {
+            throw new UnauthorizedAccessException("Access denied: Only admins can search doctors by speciality.");
+        }
+
+        List<Doctor> doctors = doctorRepository.findBySpeciality(speciality);
+        if (doctors.isEmpty()) {
+            throw new GenericNotFoundExceptions("No doctors found with the speciality: " + speciality);
+        }
+
+        return doctors;
     }
 
     private boolean isAdmin() {

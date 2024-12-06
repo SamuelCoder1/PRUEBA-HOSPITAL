@@ -30,9 +30,6 @@ public class Appointment {
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
-    @OneToMany(mappedBy = "appointment")
-    private Set<MedicalHistory> medicalHistories;
-
     private LocalDateTime appointmentDate;
 
     private AppointmentStatus status;

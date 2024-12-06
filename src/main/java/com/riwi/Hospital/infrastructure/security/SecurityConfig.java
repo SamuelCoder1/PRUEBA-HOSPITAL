@@ -17,16 +17,17 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-@EnableWebSecurity // Habilita la configuración de seguridad
-@AllArgsConstructor // Genera un constructor
-@Configuration // Indica que esta clase es una clase de configuración
+@EnableWebSecurity
+@AllArgsConstructor
+@Configuration
 public class SecurityConfig {
 
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowCredentials(true);
-        corsConfiguration.addAllowedOrigin("http://127.0.0.1:5500"); // Origen del frontend
+        corsConfiguration.addAllowedOrigin("http://127.0.0.1:8000");
+        corsConfiguration.addAllowedOrigin("http://localhost:8000");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.addAllowedMethod("*");
 

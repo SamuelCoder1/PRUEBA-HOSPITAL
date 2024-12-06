@@ -19,6 +19,8 @@ public class DoctorWithoutId {
     @NotNull(message = "Status is required")
     private MedicStatus status;
 
+    private String speciality;
+
     @NotBlank(message = "Phone number is required")
     private String phoneNumber;
 }
