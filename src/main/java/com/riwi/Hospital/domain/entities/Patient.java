@@ -1,5 +1,6 @@
 package com.riwi.Hospital.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class Patient {
     private User user;
 
     @OneToOne(mappedBy = "patient")
+    @JsonIgnore
     private MedicalHistory medicalHistory;
 
     private String phoneNumber;
@@ -31,5 +33,4 @@ public class Patient {
     private String address;
 
     private LocalDate dateOfBirth;
-
 }

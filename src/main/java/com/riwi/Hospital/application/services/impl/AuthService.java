@@ -34,7 +34,6 @@ public class AuthService {
                         loginRequest.getPassword()
                 )
         );
-
         User user = (User)  userDetailsService.loadUserByUsername(loginRequest.getDocument());
         return jwtUtil.generateToken(user);
     }
