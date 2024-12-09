@@ -61,17 +61,15 @@ This project allows you to manage medical appointments, check doctor availabilit
 Luego, abre la terminal de Visual Studio Code y ejecuta el siguiente comando para iniciar el frontend:
 Then, open the Visual Studio Code terminal and run the following command to start the frontend:
 
-bash
-Copiar código
-npm run dev
-O si prefieres otro entorno de desarrollo:
-Or if you prefer another development environment:
 
-bash
-Copiar código
+npm run dev
+OR
 npm run serve
+
 2. Desplegar Backend (Java + Spring Boot) | Deploy Backend (Java + Spring Boot)
+3. 
 Ingresa al directorio principal de la aplicación Java.
+
 Go to the main directory of the Java application.
 
 Ejecuta el proyecto en tu IDE (por ejemplo, IntelliJ IDEA o Eclipse).
@@ -84,6 +82,7 @@ Once the project is running, go to:
 http://localhost:8000
 
 Credenciales de Usuario | User Credentials
+
 A continuación se encuentran las credenciales para los usuarios predeterminados del sistema:
 Below are the credentials for the default system users:
 
