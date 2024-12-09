@@ -43,21 +43,17 @@ public class AppointmentService implements IAppointmentService {
     @Override
     @Transactional
     public Appointment create(AppointmentWithoutId appointmentWithoutId) {
-
         Doctor doctor = doctorRepository.findById(appointmentWithoutId.getDoctorId())
                 .orElseThrow(() -> new GenericNotFoundExceptions("Doctor not found with ID: " + appointmentWithoutId.getDoctorId()));
 
-        if (doctor.getStatus() == MedicStatus.UNAVAILABLE) {
-            throw new UnauthorizedAccessException("Doctor is unavailable for appointments.");
-        }
-
         LocalDateTime appointmentDateTime = appointmentWithoutId.getAppointmentDate();
+        LocalDateTime endOfAppointment = appointmentDateTime.plusMinutes(30);
 
-        List<Appointment> existingAppointments = appointmentRepository.findByDoctorIdAndAppointmentDate(
-                appointmentWithoutId.getDoctorId(), appointmentDateTime);
+        List<Appointment> existingAppointments = appointmentRepository.findByDoctorIdAndAppointmentDateBetween(
+                appointmentWithoutId.getDoctorId(), appointmentDateTime, endOfAppointment);
 
         if (!existingAppointments.isEmpty()) {
-            throw new UnauthorizedAccessException("Doctor already has an appointment at this time.");
+            throw new UnauthorizedAccessException("Doctor already has an appointment during this time.");
         }
 
         Patient patient = patientRepository.findById(appointmentWithoutId.getPatientId())
@@ -73,40 +69,42 @@ public class AppointmentService implements IAppointmentService {
         doctor.setStatus(MedicStatus.UNAVAILABLE);
         doctorRepository.save(doctor);
 
-        String message = "New appointment scheduled for the patient " + patient.getUser().getName();
-        notificationService.sendNotification("appointments", "new_appointment", message);
+        notificationService.sendNotification("appointments", "new_appointment",
+                "New appointment scheduled for the patient " + patient.getUser().getName());
 
         return appointmentRepository.save(appointment);
     }
 
     @Override
     public Appointment update(Long id, AppointmentWithoutId appointmentWithoutId) {
-
         Appointment existingAppointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new GenericNotFoundExceptions("Appointment not found with ID: " + id));
 
         LocalDateTime newAppointmentDateTime = appointmentWithoutId.getAppointmentDate();
-        List<Appointment> existingAppointments = appointmentRepository.findByDoctorIdAndAppointmentDate(
-                existingAppointment.getDoctor().getId(), newAppointmentDateTime);
+        LocalDateTime endOfAppointment = newAppointmentDateTime.plusMinutes(30);
 
-        if (!existingAppointments.isEmpty()) {
-            throw new UnauthorizedAccessException("Doctor already has an appointment at this time.");
+        List<Appointment> overlappingAppointments = appointmentRepository.findByDoctorIdAndAppointmentDateBetween(
+                existingAppointment.getDoctor().getId(), newAppointmentDateTime, endOfAppointment);
+
+        if (!overlappingAppointments.isEmpty()) {
+            throw new UnauthorizedAccessException("Doctor already has an appointment during this time.");
         }
 
         existingAppointment.setAppointmentDate(newAppointmentDateTime);
 
-        LocalDateTime now = LocalDateTime.now();
-        if (now.isEqual(newAppointmentDateTime)) {
+        if (LocalDateTime.now().isBefore(newAppointmentDateTime)) {
             existingAppointment.setStatus(AppointmentStatus.CONFIRMED);
         } else {
             existingAppointment.setStatus(AppointmentStatus.FINISHED);
-            Doctor doctor = existingAppointment.getDoctor();
-            doctor.setStatus(MedicStatus.AVAILABLE);
-            doctorRepository.save(doctor);
         }
 
-        String message = "The appointment of " + existingAppointment.getPatient().getUser().getName() + " has been updated.";
-        notificationService.sendNotification("appointments", "appointment_updated", message);
+        Doctor doctor = existingAppointment.getDoctor();
+        if (overlappingAppointments.isEmpty()) {
+            doctor.setStatus(MedicStatus.AVAILABLE);
+        } else {
+            doctor.setStatus(MedicStatus.UNAVAILABLE);
+        }
+        doctorRepository.save(doctor);
 
         return appointmentRepository.save(existingAppointment);
     }
@@ -139,9 +137,13 @@ public class AppointmentService implements IAppointmentService {
         appointmentRepository.delete(appointment);
     }
 
-    public List<Appointment> getAppointmentsByDoctor(Long doctorId, LocalDateTime appointmentDate) {
+    public List<Appointment> getAppointmentsByDoctor(Long doctorId, LocalDate appointmentDate) {
         if (appointmentDate != null) {
-            return appointmentRepository.findByDoctorIdAndAppointmentDate(doctorId, appointmentDate);
+            LocalDateTime startOfDay = appointmentDate.atStartOfDay();
+
+            LocalDateTime endOfDay = appointmentDate.atTime(23, 59, 59, 999999);
+
+            return appointmentRepository.findByDoctorIdAndAppointmentDateBetween(doctorId, startOfDay, endOfDay);
         } else {
             return appointmentRepository.findByDoctorId(doctorId);
         }
@@ -173,7 +175,18 @@ public class AppointmentService implements IAppointmentService {
         for (Appointment appointment : existingAppointments) {
             LocalDateTime appointmentTime = appointment.getAppointmentDate();
             String occupiedSlot = appointmentTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"));
+
+            LocalDateTime endOfAppointment = appointmentTime.plusMinutes(30);
+            String endSlot = endOfAppointment.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"));
+
             availableSlots.remove(occupiedSlot);
+
+            LocalDateTime currentSlot = appointmentTime.plusMinutes(30);
+            while (currentSlot.isBefore(endOfAppointment)) {
+                String nextSlot = currentSlot.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"));
+                availableSlots.remove(nextSlot);
+                currentSlot = currentSlot.plusMinutes(30);
+            }
         }
 
         return availableSlots;

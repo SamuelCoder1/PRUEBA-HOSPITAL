@@ -8,7 +8,6 @@ import com.riwi.Hospital.domain.entities.Appointment;
 import com.riwi.Hospital.domain.entities.MedicalHistory;
 import com.riwi.Hospital.domain.entities.Patient;
 import com.riwi.Hospital.domain.entities.Doctor;
-import com.riwi.Hospital.domain.enums.AppointmentStatus;
 import com.riwi.Hospital.infrastructure.persistence.AppointmentRepository;
 import com.riwi.Hospital.infrastructure.persistence.MedicalHistoryRepository;
 import com.riwi.Hospital.infrastructure.persistence.PatientRepository;
@@ -19,8 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MedicalHistoryService {
@@ -38,22 +37,21 @@ public class MedicalHistoryService {
     private AppointmentRepository appointmentRepository;
 
     @Transactional
-    public MedicalHistory addMedicalHistory(Long patientId, Long doctorId, String diagnosis, String reasonDate) {
+    public MedicalHistory addMedicalHistory(Long patientId, Long doctorId, String diagnosis, String appointmentReason) {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new IllegalArgumentException("Patient not found."));
 
         Doctor doctor = doctorRepository.findById(doctorId)
                 .orElseThrow(() -> new IllegalArgumentException("Doctor not found."));
 
-        Appointment appointment = appointmentRepository.findByPatientAndDoctorAndStatus(patient, doctor, AppointmentStatus.CONFIRMED)
-                .orElseThrow(() -> new IllegalArgumentException("No confirmed appointment found for this patient and doctor."));
+        Optional<Appointment> appointment = appointmentRepository.findByPatientAndDoctor(patient, doctor);
 
         MedicalHistory medicalHistory = new MedicalHistory();
         medicalHistory.setPatient(patient);
         medicalHistory.setDoctor(doctor);
         medicalHistory.setDiagnosis(diagnosis);
-        medicalHistory.setAppointmentReason(reasonDate);
-        medicalHistory.setAppointmentDate(appointment.getAppointmentDate());
+        medicalHistory.setAppointmentReason(appointmentReason);
+        medicalHistory.setAppointmentDate(appointment.get().getAppointmentDate());
         medicalHistory.setDoctorName(doctor.getUser().getName());
         medicalHistory.setDoctorPhone(doctor.getPhoneNumber());
         medicalHistory.setPatientName(patient.getUser().getName());

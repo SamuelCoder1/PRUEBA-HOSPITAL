@@ -50,9 +50,9 @@ public class MedicalHistoryController {
             @RequestParam Long patientId,
             @RequestParam Long doctorId,
             @RequestParam String diagnosis,
-            @RequestParam String reasonDate) {
+            @RequestParam String appointmentReason) {
         try {
-            MedicalHistory medicalHistory = medicalHistoryService.addMedicalHistory(patientId, doctorId, diagnosis, reasonDate);
+            MedicalHistory medicalHistory = medicalHistoryService.addMedicalHistory(patientId, doctorId, diagnosis, appointmentReason);
 
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body("Medical history added successfully.");

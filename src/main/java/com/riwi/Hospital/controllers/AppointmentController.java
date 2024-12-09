@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -91,8 +92,16 @@ public class AppointmentController {
     @SecurityRequirement(name = "bearerAuth")
     public List<Appointment> getAppointmentsByDoctor(
             @Parameter(description = "Doctor ID") @PathVariable Long id,
-            @Parameter(description = "Appointment date") @RequestParam(required = false) LocalDateTime appointmentDate) {
-        return appointmentService.getAppointmentsByDoctor(id, appointmentDate);
+            @Parameter(description = "Appointment date (yyyy-MM-dd)") @RequestParam(required = false) String appointmentDate) {
+
+        if (appointmentDate != null && !appointmentDate.isEmpty()) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate date = LocalDate.parse(appointmentDate, formatter);
+
+            return appointmentService.getAppointmentsByDoctor(id, date);
+        } else {
+            return appointmentService.getAppointmentsByDoctor(id, null);
+        }
     }
 
     @Operation(summary = "Update the status of an appointment")
